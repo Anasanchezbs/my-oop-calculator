@@ -87,4 +87,28 @@ def test_overflowed_result_is_rejected(monkeypatch, capsys):
     output = run_session(monkeypatch, capsys, answers)
     assert "too large" in output
     assert "1. " not in output
-    
+def run_interrupted_session(monkeypatch, capsys, answers, error):
+    responses = iter(answers)
+
+    def fake_input(prompt=""):
+        try:
+            return next(responses)
+        except StopIteration:
+            raise error
+
+    monkeypatch.setattr("builtins.input", fake_input)
+    run()
+    return capsys.readouterr().out
+
+
+def test_interrupted_input_ends_cleanly(monkeypatch, capsys):
+    scenarios = [
+        [],
+        ["add"],
+        ["add", "10"],
+        ["remove"],
+    ]
+    for error in [EOFError, KeyboardInterrupt]:
+        for answers in scenarios:
+            output = run_interrupted_session(monkeypatch, capsys, answers, error)
+            assert "Goodbye!" in output, f"{error.__name__} after {answers}"   

@@ -17,7 +17,7 @@ def show_history(history: History) -> None:
         print(f"{number}. {describe(calculation)}")
 
 
-def run() -> None:
+def _run_loop() -> None:
     operations = {"add": Add, "subtract": Subtract}
     history = History()
     print("Calculator ready. Type 'help' for commands.")
@@ -60,3 +60,11 @@ def run() -> None:
             continue
         history.add(calculation)
         print(f"Result: {result:g}")
+
+
+def run() -> None:
+    try:
+        _run_loop()
+    except (EOFError, KeyboardInterrupt):
+        print("\nGoodbye!")
+        
