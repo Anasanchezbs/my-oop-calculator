@@ -42,3 +42,29 @@ def test_modulo():
 def test_modulo_by_zero_raises():
     with pytest.raises(ZeroDivisionError):
         Operations.modulo(1, 0)
+
+
+def test_square():
+    assert Operations.square(-3) == 9
+
+
+def test_sqrt():
+    assert Operations.sqrt(9) == 3
+
+
+def test_sqrt_of_negative_raises_value_error():
+    with pytest.raises(ValueError):
+        Operations.sqrt(-4)
+
+
+def test_sum_of_many_values():
+    assert Operations.sum(1, 2, 3, 4) == 10
+
+
+def test_sum_of_one_value():
+    assert Operations.sum(7) == 7
+
+
+def test_sum_requires_at_least_one_value():
+    with pytest.raises(ValueError):
+        Operations.sum()

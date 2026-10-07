@@ -87,7 +87,7 @@ def test_nonfinite_operands_are_rejected(monkeypatch, capsys):
 def test_overflowed_result_is_rejected(monkeypatch, capsys):
     answers = ["add", "1e308", "1e308", "history", "exit"]
     output = run_session(monkeypatch, capsys, answers)
-    assert "too large" in output
+    assert "outside the supported range" in output
     assert "1. " not in output
 def run_interrupted_session(monkeypatch, capsys, answers, error):
     responses = iter(answers)
@@ -192,3 +192,36 @@ def test_unknown_command_is_reported(monkeypatch, capsys):
     output = run_session(monkeypatch, capsys, answers)
     assert "Unknown command" in output
     assert "Goodbye!" in output
+
+
+def test_square_asks_for_one_number(monkeypatch, capsys):
+    answers = ["square", "6", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Result: 36" in output
+    assert "1. Square(6) = 36" in output
+
+
+def test_sum_accepts_many_numbers(monkeypatch, capsys):
+    answers = ["sum", "1 2 3 4", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Result: 10" in output
+    assert "1. Sum(1, 2, 3, 4) = 10" in output
+
+
+def test_negative_square_root_is_reported_and_not_saved(monkeypatch, capsys):
+    answers = ["sqrt", "-4", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Error:" in output
+    assert "1. " not in output
+
+
+def test_empty_sum_is_reported(monkeypatch, capsys):
+    answers = ["sum", "", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "at least one value" in output
+
+
+def test_invalid_number_in_a_list_is_reported(monkeypatch, capsys):
+    answers = ["sum", "1 x 3", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Invalid number" in output

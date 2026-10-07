@@ -7,16 +7,26 @@ from calculator.history import History
 
 def describe(calculation: Calculation) -> str:
     name = calculation.operation.__name__.capitalize()
-    a = f"{calculation.a:g}"
-    b = f"{calculation.b:g}"
+    values = ", ".join(f"{value:g}" for value in calculation.values)
     result = f"{calculation.get_result():g}"
-    return f"{name}({a}, {b}) = {result}"
+    return f"{name}({values}) = {result}"
 
 
 def show_history(history: History) -> None:
     entries = history.get_history()
     for number, calculation in enumerate(entries, start=1):
         print(f"{number}. {describe(calculation)}")
+
+
+def read_values(command):
+    count = CalculationFactory.operand_counts.get(command)
+    if count is None:
+        text = input("Numbers (separated by spaces): ")
+        return [float(piece) for piece in text.split()]
+    values = [float(input("First number: "))]
+    if count == 2:
+        values.append(float(input("Second number: ")))
+    return values
 
 
 def _run_loop() -> None:
@@ -49,22 +59,21 @@ def _run_loop() -> None:
             print("Unknown command. Type 'help' for commands.")
             continue
         try:
-            a = float(input("First number: "))
-            b = float(input("Second number: "))
+            values = read_values(command)
         except ValueError:
             print("Invalid number. Please enter a valid number.")
             continue
-        if not (math.isfinite(a) and math.isfinite(b)):
+        if not all(math.isfinite(value) for value in values):
             print("Invalid number. Please enter a finite number.")
             continue
-        calculation = CalculationFactory.create(command, a, b)
         try:
+            calculation = CalculationFactory.create(command, *values)
             result = calculation.get_result()
         except ZeroDivisionError:
             print("Cannot divide by zero.")
             continue
-        except ValueError:
-            print("Result is too large to calculate.")
+        except ValueError as error:
+            print(f"Error: {error}")
             continue
         history.add(calculation)
         print(f"Result: {result:g}")

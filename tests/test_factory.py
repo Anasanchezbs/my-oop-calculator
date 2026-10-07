@@ -48,3 +48,32 @@ def test_creation_does_not_execute_division_by_zero():
 def test_modulo_is_registered_and_name_is_normalized():
     calculation = CalculationFactory.create("  Modulo ", "10", "3")
     assert calculation.get_result() == 1
+
+
+def test_one_operand_operation_is_created():
+    calculation = CalculationFactory.create("square", 5)
+    assert calculation.values == (5.0,)
+    assert calculation.get_result() == 25
+
+
+def test_many_operand_operation_is_created():
+    calculation = CalculationFactory.create("sum", 1, 2, 3, 4, 5)
+    assert calculation.get_result() == 15
+
+
+def test_wrong_operand_count_is_rejected():
+    for name, values in [("add", [1]), ("add", [1, 2, 3]), ("sqrt", [1, 2])]:
+        with pytest.raises(ValueError, match="needs"):
+            CalculationFactory.create(name, *values)
+
+
+def test_empty_sum_is_created_but_fails_when_executed():
+    calculation = CalculationFactory.create("sum")
+    with pytest.raises(ValueError):
+        calculation.get_result()
+
+
+def test_negative_square_root_is_created_but_fails_when_executed():
+    calculation = CalculationFactory.create("sqrt", -4)
+    with pytest.raises(ValueError):
+        calculation.get_result()
