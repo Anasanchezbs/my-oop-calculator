@@ -43,3 +43,8 @@ def test_creation_does_not_execute_division_by_zero():
     calculation = CalculationFactory.create("divide", 1, 0)
     with pytest.raises(ZeroDivisionError):
         calculation.get_result()
+
+
+def test_modulo_is_registered_and_name_is_normalized():
+    calculation = CalculationFactory.create("  Modulo ", "10", "3")
+    assert calculation.get_result() == 1

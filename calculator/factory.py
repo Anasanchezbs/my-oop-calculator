@@ -9,6 +9,7 @@ class CalculationFactory:
         "multiply": Operations.multiply,
         "divide": Operations.divide,
         "distance": Operations.distance,
+        "modulo": Operations.modulo,
     }
 
     @staticmethod

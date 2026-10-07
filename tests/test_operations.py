@@ -34,3 +34,11 @@ def test_distance_is_positive_when_first_is_smaller():
 
 def test_distance_of_equal_numbers_is_zero():
     assert Operations.distance(5, 5) == 0
+
+def test_modulo():
+    assert Operations.modulo(10, 3) == 1
+
+
+def test_modulo_by_zero_raises():
+    with pytest.raises(ZeroDivisionError):
+        Operations.modulo(1, 0)

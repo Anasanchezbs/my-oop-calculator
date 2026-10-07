@@ -18,3 +18,6 @@ class Operations:
     @staticmethod
     def distance(a, b):
         return abs(a - b)
+    @staticmethod
+    def modulo(a, b):
+        return a % b
