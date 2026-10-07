@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from calculator.operations import Operations
 
 class Calculation(ABC):
     def __init__(self, a: float, b: float) -> None:
@@ -13,10 +14,11 @@ class Calculation(ABC):
 
 class Add(Calculation):
     def get_result(self) -> float:
-        return self.a + self.b
+        return Operations.add(self.a, self.b)
 
 
 class Subtract(Calculation):
     def get_result(self) -> float:
-        return self.a - self.b
+        return Operations.subtract(self.a, self.b)
+    
 
