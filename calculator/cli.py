@@ -2,22 +2,21 @@ import math
 
 from calculator.calculation import Calculation
 from calculator.factory import CalculationFactory
-from calculator.history import History
+from calculator.session import CalculatorSession
 
 
-def describe(calculation: Calculation) -> str:
+def describe(calculation: Calculation, result: float) -> str:
     name = calculation.operation.__name__.capitalize()
     parts = [f"{value:g}" for value in calculation.values]
     for key, value in calculation.options.items():
         parts.append(f"{key}={value:g}")
-    result = f"{calculation.get_result():g}"
-    return f"{name}({', '.join(parts)}) = {result}"
+    return f"{name}({', '.join(parts)}) = {result:g}"
 
 
-def show_history(history: History) -> None:
-    entries = history.get_history()
-    for number, calculation in enumerate(entries, start=1):
-        print(f"{number}. {describe(calculation)}")
+def show_history(session: CalculatorSession) -> None:
+    entries = session.get_history()
+    for number, (calculation, result) in enumerate(entries, start=1):
+        print(f"{number}. {describe(calculation, result)}")
 
 
 def read_values(command):
@@ -32,15 +31,16 @@ def read_values(command):
 
 
 def read_options(command):
-    if command == "power":
-        text = input("Exponent (blank for 2): ").strip()
+    options = {}
+    for key in CalculationFactory.allowed_options.get(command, ()):
+        text = input(f"{key.capitalize()} (blank for default): ").strip()
         if text:
-            return {"exponent": float(text)}
-    return {}
+            options[key] = float(text)
+    return options
 
 
 def _run_loop() -> None:
-    history = History()
+    session = CalculatorSession()
     names = ", ".join(CalculationFactory.operations)
     print("Calculator ready. Type 'help' for commands.")
     while True:
@@ -52,18 +52,18 @@ def _run_loop() -> None:
             print(f"Commands: {names}, history, remove, help, exit")
             continue
         if command == "history":
-            show_history(history)
+            show_history(session)
             continue
         if command == "remove":
             try:
                 number = int(input("Entry number: "))
-                removed = history.remove(number - 1)
+                removed = session.remove(number - 1)
             except ValueError:
                 print("Invalid entry number. Please enter a whole number.")
             except IndexError:
                 print("No such entry. Use 'history' to see valid numbers.")
             else:
-                print(f"Removed: {describe(removed)}")
+                print(f"Removed: {describe(*removed)}")
             continue
         if command not in CalculationFactory.operations:
             print("Unknown command. Type 'help' for commands.")
@@ -79,7 +79,7 @@ def _run_loop() -> None:
             continue
         try:
             calculation = CalculationFactory.create(command, *values, **options)
-            result = calculation.get_result()
+            result = session.calculate(calculation)
         except ZeroDivisionError:
             print("Cannot divide by zero.")
             continue
@@ -89,7 +89,6 @@ def _run_loop() -> None:
         except ValueError as error:
             print(f"Error: {error}")
             continue
-        history.add(calculation)
         print(f"Result: {result:g}")
 
 
