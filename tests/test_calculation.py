@@ -43,3 +43,8 @@ def test_different_calculations_can_be_used_the_same_way():
     for calculation in calculations:
         results.append(calculation.get_result())
     assert results == [15, 13]
+
+def test_decimal_and_negative_arithmetic():
+    assert Add(0.1, 0.2).get_result() == pytest.approx(0.3)
+    assert Subtract(-5, -8).get_result() == 3
+    assert Subtract(1.5, 0.25).get_result() == pytest.approx(1.25)

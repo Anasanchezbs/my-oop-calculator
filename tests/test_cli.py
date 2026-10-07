@@ -1,3 +1,5 @@
+import runpy
+
 from calculator.cli import run
 
 
@@ -112,3 +114,54 @@ def test_interrupted_input_ends_cleanly(monkeypatch, capsys):
         for answers in scenarios:
             output = run_interrupted_session(monkeypatch, capsys, answers, error)
             assert "Goodbye!" in output, f"{error.__name__} after {answers}"   
+
+
+def test_remove_from_empty_history_is_rejected(monkeypatch, capsys):
+    answers = ["remove", "1", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "No such entry" in output
+
+
+def test_remove_middle_entry_keeps_the_others(monkeypatch, capsys):
+    answers = [
+        "add", "1", "1",
+        "add", "2", "2",
+        "add", "3", "3",
+        "remove", "2",
+        "history",
+        "exit",
+    ]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Removed: Add(2, 2) = 4" in output
+    assert "1. Add(1, 1) = 2" in output
+    assert "2. Add(3, 3) = 6" in output
+    assert "3. " not in output
+
+
+def test_remove_last_entry_keeps_the_first(monkeypatch, capsys):
+    answers = ["add", "1", "1", "add", "2", "2", "remove", "2", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Removed: Add(2, 2) = 4" in output
+    assert "1. Add(1, 1) = 2" in output
+    assert "2. " not in output
+
+
+def test_remove_only_entry_leaves_empty_history(monkeypatch, capsys):
+    answers = ["add", "10", "5", "remove", "1", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Removed: Add(10, 5) = 15" in output
+    assert "1. " not in output
+
+def test_package_entry_point_starts_the_repl(monkeypatch, capsys):
+    monkeypatch.setattr("builtins.input", lambda prompt="": "exit")
+    runpy.run_module("calculator", run_name="__main__")
+    assert "Goodbye!" in capsys.readouterr().out
+
+
+def test_entry_point_does_not_start_when_imported(monkeypatch, capsys):
+    def fail_if_called(prompt=""):
+        raise AssertionError("input should not be called")
+
+    monkeypatch.setattr("builtins.input", fail_if_called)
+    runpy.run_module("calculator", run_name="imported")
+    assert capsys.readouterr().out == ""
