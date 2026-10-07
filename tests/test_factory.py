@@ -113,3 +113,19 @@ def test_nonfinite_option_is_rejected():
     for bad_value in ["nan", "inf"]:
         with pytest.raises(ValueError):
             CalculationFactory.create("power", 3, exponent=bad_value)
+
+
+def test_mean_accepts_any_number_of_values():
+    assert CalculationFactory.create("mean", 2, 4, 6).get_result() == 4
+
+
+def test_stddev_with_ddof_option():
+    calculation = CalculationFactory.create("stddev", 2, 4, 6, ddof="0")
+    assert calculation.options == {"ddof": 0.0}
+    assert calculation.get_result() == pytest.approx(1.6330, abs=1e-4)
+
+
+def test_stddev_with_one_value_is_created_but_fails_when_executed():
+    calculation = CalculationFactory.create("stddev", 5)
+    with pytest.raises(ValueError):
+        calculation.get_result()

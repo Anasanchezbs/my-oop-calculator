@@ -15,6 +15,8 @@ class CalculationFactory:
         "sqrt": Operations.sqrt,
         "sum": Operations.sum,
         "power": Operations.power,
+        "mean": Operations.mean,
+        "stddev": Operations.stddev,
     }
 
     # Fixed-arity operations. Operations missing here (sum) accept many values.
@@ -33,6 +35,7 @@ class CalculationFactory:
     # Named settings each operation accepts.
     allowed_options = {
         "power": ("exponent",),
+        "stddev": ("ddof",),
     }
 
     @staticmethod

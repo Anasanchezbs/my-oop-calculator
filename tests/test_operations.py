@@ -81,3 +81,15 @@ def test_power_uses_keyword_only_exponent():
 def test_power_rejects_positional_exponent():
     with pytest.raises(TypeError):
         Operations.power(3, 4)
+
+
+def test_mean_operation():
+    assert Operations.mean(10, 20, 30) == 20
+
+
+def test_stddev_operation_defaults_to_sample():
+    assert Operations.stddev(10, 20, 30, 40, 50) == pytest.approx(15.8114, abs=1e-4)
+
+
+def test_stddev_operation_accepts_ddof_keyword():
+    assert Operations.stddev(2, 4, 6, ddof=0) == pytest.approx(1.6330, abs=1e-4)

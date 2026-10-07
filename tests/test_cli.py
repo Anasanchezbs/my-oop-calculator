@@ -198,3 +198,22 @@ def test_count_ignores_failed_calculations(monkeypatch, capsys):
     lines = ["add 1 2", "divide 1 0", "count", "exit"]
     output = run_session(monkeypatch, capsys, lines)
     assert "Saved calculations: 1" in output
+
+
+def test_mean_and_stddev_from_typed_values(monkeypatch, capsys):
+    lines = ["mean 10 20 30 40 50", "stddev 10 20 30 40 50", "exit"]
+    output = run_session(monkeypatch, capsys, lines)
+    assert "Result: 30" in output
+    assert "Result: 15.8114" in output
+
+
+def test_stddev_ddof_option_selects_population(monkeypatch, capsys):
+    output = run_session(monkeypatch, capsys, ["stddev 2 4 6 ddof=0", "exit"])
+    assert "Result: 1.63299" in output
+
+
+def test_stddev_with_one_value_is_reported_and_not_saved(monkeypatch, capsys):
+    lines = ["stddev 5", "history", "exit"]
+    output = run_session(monkeypatch, capsys, lines)
+    assert "at least 2" in output
+    assert "History is empty." in output

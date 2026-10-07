@@ -1,5 +1,7 @@
 import math
 
+from calculator import statistics as stats
+
 
 class Operations:
     @staticmethod
@@ -46,3 +48,11 @@ class Operations:
     @staticmethod
     def power(value, *, exponent=2):
         return math.pow(value, exponent)
+
+    @staticmethod
+    def mean(*values):
+        return stats.mean(*values)
+
+    @staticmethod
+    def stddev(*values, ddof=1):
+        return stats.standard_deviation(*values, ddof=ddof)
