@@ -1,7 +1,6 @@
 from calculator.calculation import Add, Calculation, Subtract
 from calculator.history import History
 
-
 def describe(calculation: Calculation) -> str:
     name = type(calculation).__name__
     a = f"{calculation.a:g}"
@@ -37,8 +36,21 @@ def run() -> None:
             print(f"Removed: {describe(removed)}")
             continue
         operation = operations[command]
-        a = float(input("First number: "))
-        b = float(input("Second number: "))
-        calculation = operation(a, b)
+        try:
+            a = float(input("First number: "))
+            b = float(input("Second number: "))
+        except ValueError:
+            print("Invalid number. Please enter a valid number.")
+            continue
+        calculation = operation(a, b)      
         history.add(calculation)
         print(f"Result: {calculation.get_result():g}")
+
+
+def test_invalid_second_number_recovers(monkeypatch, capsys):
+    answers = ["add", "10", "hello", "subtract", "20", "7", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Invalid number" in output
+    assert "Result: 13" in output
+    assert "1. Subtract(20, 7) = 13" in output
+    assert "Add(10" not in output

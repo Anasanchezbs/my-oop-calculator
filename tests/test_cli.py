@@ -42,3 +42,18 @@ def test_help_lists_commands(monkeypatch, capsys):
     assert "Commands:" in output
     assert "remove" in output
     assert "Goodbye!" in output
+def test_invalid_second_number_recovers(monkeypatch, capsys):
+    answers = ["add", "10", "hello", "subtract", "20", "7", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Invalid number" in output
+    assert "Result: 13" in output
+    assert "1. Subtract(20, 7) = 13" in output
+    assert "Add(10" not in output
+
+def test_invalid_first_number_recovers(monkeypatch, capsys):
+    answers = ["add", "hello", "add", "10", "5", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Invalid number" in output
+    assert "Result: 15" in output
+    assert "1. Add(10, 5) = 15" in output
+    assert "2. " not in output
