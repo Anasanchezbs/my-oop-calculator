@@ -1,10 +1,11 @@
 import math
 
-from calculator.calculation import Add, Calculation, Subtract
+from calculator.calculation import Calculation
 from calculator.history import History
+from calculator.operations import Operations
 
 def describe(calculation: Calculation) -> str:
-    name = type(calculation).__name__
+    name = calculation.operation.__name__.capitalize()
     a = f"{calculation.a:g}"
     b = f"{calculation.b:g}"
     result = f"{calculation.get_result():g}"
@@ -18,7 +19,7 @@ def show_history(history: History) -> None:
 
 
 def _run_loop() -> None:
-    operations = {"add": Add, "subtract": Subtract}
+    operations = {"add": Operations.add, "subtract": Operations.subtract}
     history = History()
     print("Calculator ready. Type 'help' for commands.")
     while True:
@@ -53,9 +54,10 @@ def _run_loop() -> None:
         if not (math.isfinite(a) and math.isfinite(b)):
             print("Invalid number. Please enter a finite number.")
             continue
-        calculation = operation(a, b)
-        result = calculation.get_result()
-        if not math.isfinite(result):
+        calculation = Calculation(a, b, operation)
+        try:
+            result = calculation.get_result()
+        except ValueError:
             print("Result is too large to calculate.")
             continue
         history.add(calculation)
@@ -67,4 +69,3 @@ def run() -> None:
         _run_loop()
     except (EOFError, KeyboardInterrupt):
         print("\nGoodbye!")
-        
