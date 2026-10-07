@@ -3,7 +3,6 @@ import math
 from calculator.calculation import Calculation
 from calculator.history import History
 from calculator.operations import Operations
-
 def describe(calculation: Calculation) -> str:
     name = calculation.operation.__name__.capitalize()
     a = f"{calculation.a:g}"
@@ -19,7 +18,11 @@ def show_history(history: History) -> None:
 
 
 def _run_loop() -> None:
-    operations = {"add": Operations.add, "subtract": Operations.subtract}
+    operations = {
+        "add": Operations.add,
+        "subtract": Operations.subtract,
+        "distance": Operations.distance,
+    }
     history = History()
     print("Calculator ready. Type 'help' for commands.")
     while True:
@@ -28,7 +31,7 @@ def _run_loop() -> None:
             print("Goodbye!")
             break
         if command == "help":
-            print("Commands: add, subtract, history, remove, help, exit")
+            print("Commands: add, subtract, distance, history, remove, help, exit")
             continue
         if command == "history":
             show_history(history)
@@ -69,3 +72,6 @@ def run() -> None:
         _run_loop()
     except (EOFError, KeyboardInterrupt):
         print("\nGoodbye!")
+
+
+    

@@ -14,4 +14,7 @@ class Operations:
     @staticmethod
     def divide(a, b):
         return a / b
-    
+
+    @staticmethod
+    def distance(a, b):
+        return abs(a - b)

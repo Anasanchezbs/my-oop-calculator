@@ -22,3 +22,15 @@ def test_divide():
 def test_divide_by_zero_raises():
     with pytest.raises(ZeroDivisionError):
         Operations.divide(1, 0)
+
+
+def test_distance_is_positive_when_first_is_larger():
+    assert Operations.distance(10, 3) == 7
+
+
+def test_distance_is_positive_when_first_is_smaller():
+    assert Operations.distance(3, 10) == 7
+
+
+def test_distance_of_equal_numbers_is_zero():
+    assert Operations.distance(5, 5) == 0
