@@ -62,4 +62,4 @@ class HelpCommand(Command):
 
     def execute(self) -> str:
         names = ", ".join(self.operation_names)
-        return f"Commands: {names}, history, clear, count, help, exit"
+        return f"Commands: {names}, history, clear, count, csv, help, exit"

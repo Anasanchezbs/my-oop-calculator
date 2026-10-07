@@ -50,6 +50,7 @@ def test_missing_and_nonfinite_values_are_rejected():
             mean(1, bad_value)
 
 
+@pytest.mark.filterwarnings("ignore:overflow encountered:RuntimeWarning")
 def test_overflowing_result_is_rejected():
     with pytest.raises(ValueError):
         mean(1e308, 1e308)

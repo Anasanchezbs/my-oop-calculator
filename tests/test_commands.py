@@ -58,7 +58,7 @@ def test_history_command_lists_numbered_entries():
 
 def test_help_command_lists_operations_and_actions():
     text = HelpCommand(["add", "power"]).execute()
-    assert text == "Commands: add, power, history, clear, count, help, exit"
+    assert text == "Commands: add, power, history, clear, count, csv, help, exit"
 
 
 def test_command_cannot_be_created_directly():

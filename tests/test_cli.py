@@ -217,3 +217,78 @@ def test_stddev_with_one_value_is_reported_and_not_saved(monkeypatch, capsys):
     output = run_session(monkeypatch, capsys, lines)
     assert "at least 2" in output
     assert "History is empty." in output
+
+
+def write_csv(tmp_path, text, name="data.csv"):
+    path = tmp_path / name
+    path.write_text(text)
+    return path
+
+
+def test_csv_gives_the_same_answer_as_typed_values(monkeypatch, capsys, tmp_path):
+    datasets = [[10, 20, 30, 40, 50], [2, 4, 6, 8], [1.5, 2.5, 9]]
+    for numbers in datasets:
+        text = "value\n" + "\n".join(str(n) for n in numbers) + "\n"
+        path = write_csv(tmp_path, text)
+        typed = " ".join(str(n) for n in numbers)
+        for operation in ["mean", "stddev"]:
+            from_file = run_session(
+                monkeypatch, capsys, [f"csv {operation} {path}", "exit"]
+            )
+            from_typing = run_session(
+                monkeypatch, capsys, [f"{operation} {typed}", "exit"]
+            )
+            assert from_file == from_typing, (operation, numbers)
+
+
+def test_csv_stddev_accepts_ddof(monkeypatch, capsys, tmp_path):
+    path = write_csv(tmp_path, "value\n2\n4\n6\n")
+    output = run_session(monkeypatch, capsys, [f"csv stddev {path} ddof=0", "exit"])
+    assert "Result: 1.63299" in output
+
+
+def test_failed_file_request_then_manual_input(monkeypatch, capsys):
+    lines = ["csv mean /no/such/file.csv", "add 1 2", "history", "exit"]
+    output = run_session(monkeypatch, capsys, lines)
+    assert "Error:" in output
+    assert "Result: 3" in output
+    assert "1. Add(1, 2) = 3" in output
+
+
+def test_csv_without_a_value_column(monkeypatch, capsys, tmp_path):
+    path = write_csv(tmp_path, "x\n1\n")
+    output = run_session(monkeypatch, capsys, [f"csv mean {path}", "exit"])
+    assert "named value" in output
+
+
+def test_csv_with_a_missing_observation_is_not_saved(monkeypatch, capsys, tmp_path):
+    path = write_csv(tmp_path, "value,label\n10,a\n,b\n30,c\n")
+    lines = [f"csv mean {path}", "history", "exit"]
+    output = run_session(monkeypatch, capsys, lines)
+    assert "Error:" in output
+    assert "History is empty." in output
+
+
+def test_csv_usage_errors(monkeypatch, capsys):
+    for line in ["csv", "csv mean"]:
+        output = run_session(monkeypatch, capsys, [line, "exit"])
+        assert "Usage" in output, line
+
+
+def test_csv_accepts_only_options_after_the_path(monkeypatch, capsys, tmp_path):
+    path = write_csv(tmp_path, "value\n1\n2\n")
+    output = run_session(monkeypatch, capsys, [f"csv mean {path} 5", "exit"])
+    assert "only option" in output
+
+
+def test_csv_unknown_operation(monkeypatch, capsys, tmp_path):
+    path = write_csv(tmp_path, "value\n1\n2\n")
+    output = run_session(monkeypatch, capsys, [f"csv banana {path}", "exit"])
+    assert "Unknown operation: banana" in output
+
+
+def test_csv_empty_file_and_directory_are_reported(monkeypatch, capsys, tmp_path):
+    empty = write_csv(tmp_path, "", name="empty.csv")
+    for target in [empty, tmp_path]:
+        output = run_session(monkeypatch, capsys, [f"csv mean {target}", "exit"])
+        assert "Error:" in output, target
