@@ -1,5 +1,6 @@
 from calculator.calculation import Calculation
 from calculator.operations import Operations
+from calculator.validation import numeric_values
 
 
 class CalculationFactory:
@@ -13,6 +14,7 @@ class CalculationFactory:
         "square": Operations.square,
         "sqrt": Operations.sqrt,
         "sum": Operations.sum,
+        "power": Operations.power,
     }
 
     # Fixed-arity operations. Operations missing here (sum) accept many values.
@@ -25,10 +27,16 @@ class CalculationFactory:
         "modulo": 2,
         "square": 1,
         "sqrt": 1,
+        "power": 1,
+    }
+
+    # Named settings each operation accepts.
+    allowed_options = {
+        "power": ("exponent",),
     }
 
     @staticmethod
-    def create(name, *values):
+    def create(name, *values, **options):
         name = name.strip().lower()
         try:
             operation = CalculationFactory.operations[name]
@@ -39,4 +47,10 @@ class CalculationFactory:
             raise ValueError(
                 f"{name} needs {expected} value(s), got {len(values)}"
             )
-        return Calculation(values, operation)
+        allowed = CalculationFactory.allowed_options.get(name, ())
+        clean = {}
+        for key, value in options.items():
+            if key not in allowed:
+                raise ValueError(f"{name} does not accept option: {key}")
+            clean[key] = numeric_values([value])[0]
+        return Calculation(values, operation, **clean)

@@ -225,3 +225,35 @@ def test_invalid_number_in_a_list_is_reported(monkeypatch, capsys):
     answers = ["sum", "1 x 3", "exit"]
     output = run_session(monkeypatch, capsys, answers)
     assert "Invalid number" in output
+
+
+def test_power_with_exponent(monkeypatch, capsys):
+    answers = ["power", "3", "4", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Result: 81" in output
+    assert "1. Power(3, exponent=4) = 81" in output
+
+
+def test_power_default_exponent(monkeypatch, capsys):
+    answers = ["power", "3", "", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Result: 9" in output
+
+
+def test_power_overflow_is_reported_and_not_saved(monkeypatch, capsys):
+    answers = ["power", "10", "1000", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "too large" in output
+    assert "1. " not in output
+
+
+def test_invalid_exponent_text_is_reported(monkeypatch, capsys):
+    answers = ["power", "3", "abc", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Invalid number" in output
+
+
+def test_nonfinite_exponent_is_reported(monkeypatch, capsys):
+    answers = ["power", "3", "nan", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Error:" in output

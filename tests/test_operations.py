@@ -68,3 +68,16 @@ def test_sum_of_one_value():
 def test_sum_requires_at_least_one_value():
     with pytest.raises(ValueError):
         Operations.sum()
+
+
+def test_power_defaults_to_squaring():
+    assert Operations.power(3) == 9
+
+
+def test_power_uses_keyword_only_exponent():
+    assert Operations.power(3, exponent=4) == 81
+
+
+def test_power_rejects_positional_exponent():
+    with pytest.raises(TypeError):
+        Operations.power(3, 4)

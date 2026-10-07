@@ -75,3 +75,21 @@ def test_nonfinite_result_is_rejected():
     calculation = Calculation((1e308, 1e308), Operations.add)
     with pytest.raises(ValueError):
         calculation.get_result()
+
+
+def test_options_are_forwarded_to_the_operation():
+    calculation = Calculation((3,), Operations.power, exponent=4)
+    assert calculation.options == {"exponent": 4}
+    assert calculation.get_result() == 81
+
+
+def test_options_default_to_empty():
+    assert Calculation((3,), Operations.power).options == {}
+    assert Calculation((3,), Operations.power).get_result() == 9
+
+
+def test_calculation_keeps_its_own_copy_of_options():
+    settings = {"exponent": 3}
+    calculation = Calculation((2,), Operations.power, **settings)
+    settings["exponent"] = 10
+    assert calculation.get_result() == 8

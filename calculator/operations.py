@@ -42,3 +42,7 @@ class Operations:
         for value in values:
             total += value
         return total
+
+    @staticmethod
+    def power(value, *, exponent=2):
+        return math.pow(value, exponent)

@@ -7,9 +7,11 @@ from calculator.history import History
 
 def describe(calculation: Calculation) -> str:
     name = calculation.operation.__name__.capitalize()
-    values = ", ".join(f"{value:g}" for value in calculation.values)
+    parts = [f"{value:g}" for value in calculation.values]
+    for key, value in calculation.options.items():
+        parts.append(f"{key}={value:g}")
     result = f"{calculation.get_result():g}"
-    return f"{name}({values}) = {result}"
+    return f"{name}({', '.join(parts)}) = {result}"
 
 
 def show_history(history: History) -> None:
@@ -27,6 +29,14 @@ def read_values(command):
     if count == 2:
         values.append(float(input("Second number: ")))
     return values
+
+
+def read_options(command):
+    if command == "power":
+        text = input("Exponent (blank for 2): ").strip()
+        if text:
+            return {"exponent": float(text)}
+    return {}
 
 
 def _run_loop() -> None:
@@ -60,6 +70,7 @@ def _run_loop() -> None:
             continue
         try:
             values = read_values(command)
+            options = read_options(command)
         except ValueError:
             print("Invalid number. Please enter a valid number.")
             continue
@@ -67,10 +78,13 @@ def _run_loop() -> None:
             print("Invalid number. Please enter a finite number.")
             continue
         try:
-            calculation = CalculationFactory.create(command, *values)
+            calculation = CalculationFactory.create(command, *values, **options)
             result = calculation.get_result()
         except ZeroDivisionError:
             print("Cannot divide by zero.")
+            continue
+        except OverflowError:
+            print("Result is too large to calculate.")
             continue
         except ValueError as error:
             print(f"Error: {error}")

@@ -29,8 +29,8 @@ def test_registered_operations_compute_expected_results():
 
 
 def test_unknown_name_raises_value_error():
-    with pytest.raises(ValueError, match="Unknown operation: power"):
-        CalculationFactory.create("power", 2, 3)
+    with pytest.raises(ValueError, match="Unknown operation: cube"):
+        CalculationFactory.create("cube", 2, 3)
 
 
 def test_invalid_operand_is_not_reported_as_unknown_operation():
@@ -77,3 +77,39 @@ def test_negative_square_root_is_created_but_fails_when_executed():
     calculation = CalculationFactory.create("sqrt", -4)
     with pytest.raises(ValueError):
         calculation.get_result()
+
+
+def test_power_with_exponent_option():
+    calculation = CalculationFactory.create("power", 3, exponent=4)
+    assert calculation.get_result() == 81
+
+
+def test_power_uses_default_exponent():
+    assert CalculationFactory.create("power", 3).get_result() == 9
+
+
+def test_option_values_are_converted_to_numbers():
+    calculation = CalculationFactory.create("power", 2, exponent="3")
+    assert calculation.options == {"exponent": 3.0}
+    assert calculation.get_result() == 8
+
+
+def test_unknown_option_name_is_rejected():
+    with pytest.raises(ValueError, match="does not accept option"):
+        CalculationFactory.create("power", 3, base=2)
+
+
+def test_operation_without_options_rejects_any_option():
+    with pytest.raises(ValueError, match="does not accept option"):
+        CalculationFactory.create("add", 1, 2, exponent=2)
+
+
+def test_non_numeric_option_is_rejected():
+    with pytest.raises(ValueError):
+        CalculationFactory.create("power", 3, exponent="x")
+
+
+def test_nonfinite_option_is_rejected():
+    for bad_value in ["nan", "inf"]:
+        with pytest.raises(ValueError):
+            CalculationFactory.create("power", 3, exponent=bad_value)
