@@ -1,6 +1,7 @@
 from calculator.commands import (
     CalculateCommand,
     ClearHistoryCommand,
+    CountCommand,
     HelpCommand,
     HistoryCommand,
 )
@@ -14,13 +15,15 @@ def prepare_command(line, session):
         raise ValueError("Enter a command. Type 'help' for commands.")
     name = pieces[0].lower()
     arguments = pieces[1:]
-    if name in ("history", "clear", "help"):
+    if name in ("history", "clear", "count", "help"):
         if arguments:
             raise ValueError(f"{name} takes no arguments")
         if name == "history":
             return HistoryCommand(session)
         if name == "clear":
             return ClearHistoryCommand(session)
+        if name == "count":
+            return CountCommand(session)
         return HelpCommand(CalculationFactory.operations)
     values = []
     options = {}

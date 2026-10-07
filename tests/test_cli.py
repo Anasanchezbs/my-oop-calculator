@@ -192,3 +192,9 @@ def test_entry_point_does_not_start_when_imported(monkeypatch, capsys):
     monkeypatch.setattr("builtins.input", fail_if_called)
     runpy.run_module("calculator", run_name="imported")
     assert capsys.readouterr().out == ""
+
+
+def test_count_ignores_failed_calculations(monkeypatch, capsys):
+    lines = ["add 1 2", "divide 1 0", "count", "exit"]
+    output = run_session(monkeypatch, capsys, lines)
+    assert "Saved calculations: 1" in output

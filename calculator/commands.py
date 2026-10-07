@@ -48,10 +48,18 @@ class ClearHistoryCommand(Command):
         return "History cleared."
 
 
+class CountCommand(Command):
+    def __init__(self, session):
+        self.session = session
+
+    def execute(self) -> str:
+        return f"Saved calculations: {len(self.session.get_history())}"
+
+
 class HelpCommand(Command):
     def __init__(self, operation_names):
         self.operation_names = tuple(operation_names)
 
     def execute(self) -> str:
         names = ", ".join(self.operation_names)
-        return f"Commands: {names}, history, clear, help, exit"
+        return f"Commands: {names}, history, clear, count, help, exit"

@@ -58,7 +58,7 @@ def test_history_command_lists_numbered_entries():
 
 def test_help_command_lists_operations_and_actions():
     text = HelpCommand(["add", "power"]).execute()
-    assert text == "Commands: add, power, history, clear, help, exit"
+    assert text == "Commands: add, power, history, clear, count, help, exit"
 
 
 def test_command_cannot_be_created_directly():
@@ -87,3 +87,14 @@ def test_different_commands_are_used_the_same_way():
     assert outputs[1] == "1. Add(10, 5) = 15"
     assert outputs[2] == "History cleared."
     assert outputs[3].startswith("Commands:")
+
+
+def test_count_command_reports_only_saved_calculations():
+    from calculator.commands import CountCommand
+
+    session = CalculatorSession()
+    assert CountCommand(session).execute() == "Saved calculations: 0"
+    session.calculate(make_add(1, 1))
+    with pytest.raises(ZeroDivisionError):
+        session.calculate(Calculation((1, 0), Operations.divide))
+    assert CountCommand(session).execute() == "Saved calculations: 1"
