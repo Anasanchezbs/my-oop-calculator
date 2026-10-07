@@ -1,3 +1,5 @@
+import math
+
 from calculator.calculation import Add, Calculation, Subtract
 from calculator.history import History
 
@@ -48,6 +50,13 @@ def run() -> None:
         except ValueError:
             print("Invalid number. Please enter a valid number.")
             continue
-        calculation = operation(a, b)      
+        if not (math.isfinite(a) and math.isfinite(b)):
+            print("Invalid number. Please enter a finite number.")
+            continue
+        calculation = operation(a, b)
+        result = calculation.get_result()
+        if not math.isfinite(result):
+            print("Result is too large to calculate.")
+            continue
         history.add(calculation)
-        print(f"Result: {calculation.get_result():g}")
+        print(f"Result: {result:g}")

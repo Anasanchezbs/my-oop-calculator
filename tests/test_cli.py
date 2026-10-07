@@ -74,3 +74,17 @@ def test_invalid_removal_number_keeps_history(monkeypatch, capsys):
         assert "No such entry" in output, f"no error message for {bad_number}"
         assert "1. Add(10, 5) = 15" in output, f"history changed for {bad_number}"
         assert "Removed" not in output, f"removed something for {bad_number}"
+def test_nonfinite_operands_are_rejected(monkeypatch, capsys):
+    for bad_value in ["nan", "inf", "-inf"]:
+        answers = ["add", bad_value, "1", "history", "exit"]
+        output = run_session(monkeypatch, capsys, answers)
+        assert "Invalid number" in output, f"{bad_value} was accepted"
+        assert "1. " not in output, f"{bad_value} entered history"
+
+
+def test_overflowed_result_is_rejected(monkeypatch, capsys):
+    answers = ["add", "1e308", "1e308", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "too large" in output
+    assert "1. " not in output
+    
