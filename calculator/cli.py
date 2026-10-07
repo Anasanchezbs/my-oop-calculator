@@ -31,9 +31,15 @@ def run() -> None:
             show_history(history)
             continue
         if command == "remove":
-            number = int(input("Entry number: "))
-            removed = history.remove(number - 1)
-            print(f"Removed: {describe(removed)}")
+            try:
+                number = int(input("Entry number: "))
+                removed = history.remove(number - 1)
+            except ValueError:
+                print("Invalid entry number. Please enter a whole number.")
+            except IndexError:
+                print("No such entry. Use 'history' to see valid numbers.")
+            else:
+                print(f"Removed: {describe(removed)}")
             continue
         operation = operations[command]
         try:
@@ -45,12 +51,3 @@ def run() -> None:
         calculation = operation(a, b)      
         history.add(calculation)
         print(f"Result: {calculation.get_result():g}")
-
-
-def test_invalid_second_number_recovers(monkeypatch, capsys):
-    answers = ["add", "10", "hello", "subtract", "20", "7", "history", "exit"]
-    output = run_session(monkeypatch, capsys, answers)
-    assert "Invalid number" in output
-    assert "Result: 13" in output
-    assert "1. Subtract(20, 7) = 13" in output
-    assert "Add(10" not in output

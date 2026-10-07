@@ -57,3 +57,20 @@ def test_invalid_first_number_recovers(monkeypatch, capsys):
     assert "Result: 15" in output
     assert "1. Add(10, 5) = 15" in output
     assert "2. " not in output
+
+
+def test_invalid_removal_text_recovers(monkeypatch, capsys):
+    answers = ["add", "10", "5", "remove", "abc", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Invalid entry number" in output
+    assert "1. Add(10, 5) = 15" in output
+    assert "Removed" not in output
+
+
+def test_invalid_removal_number_keeps_history(monkeypatch, capsys):
+    for bad_number in ["0", "2", "-1"]:
+        answers = ["add", "10", "5", "remove", bad_number, "history", "exit"]
+        output = run_session(monkeypatch, capsys, answers)
+        assert "No such entry" in output, f"no error message for {bad_number}"
+        assert "1. Add(10, 5) = 15" in output, f"history changed for {bad_number}"
+        assert "Removed" not in output, f"removed something for {bad_number}"
