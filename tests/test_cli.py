@@ -165,3 +165,9 @@ def test_entry_point_does_not_start_when_imported(monkeypatch, capsys):
     monkeypatch.setattr("builtins.input", fail_if_called)
     runpy.run_module("calculator", run_name="imported")
     assert capsys.readouterr().out == ""
+
+def test_distance_command_shows_absolute_difference(monkeypatch, capsys):
+    answers = ["distance", "3", "10", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Result: 7" in output
+    assert "1. Distance(3, 10) = 7" in output
