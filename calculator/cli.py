@@ -1,8 +1,10 @@
 import math
 
 from calculator.calculation import Calculation
+from calculator.factory import CalculationFactory
 from calculator.history import History
-from calculator.operations import Operations
+
+
 def describe(calculation: Calculation) -> str:
     name = calculation.operation.__name__.capitalize()
     a = f"{calculation.a:g}"
@@ -18,12 +20,8 @@ def show_history(history: History) -> None:
 
 
 def _run_loop() -> None:
-    operations = {
-        "add": Operations.add,
-        "subtract": Operations.subtract,
-        "distance": Operations.distance,
-    }
     history = History()
+    names = ", ".join(CalculationFactory.operations)
     print("Calculator ready. Type 'help' for commands.")
     while True:
         command = input("Command: ").strip().lower()
@@ -31,7 +29,7 @@ def _run_loop() -> None:
             print("Goodbye!")
             break
         if command == "help":
-            print("Commands: add, subtract, distance, history, remove, help, exit")
+            print(f"Commands: {names}, history, remove, help, exit")
             continue
         if command == "history":
             show_history(history)
@@ -47,7 +45,9 @@ def _run_loop() -> None:
             else:
                 print(f"Removed: {describe(removed)}")
             continue
-        operation = operations[command]
+        if command not in CalculationFactory.operations:
+            print("Unknown command. Type 'help' for commands.")
+            continue
         try:
             a = float(input("First number: "))
             b = float(input("Second number: "))
@@ -57,9 +57,12 @@ def _run_loop() -> None:
         if not (math.isfinite(a) and math.isfinite(b)):
             print("Invalid number. Please enter a finite number.")
             continue
-        calculation = Calculation(a, b, operation)
+        calculation = CalculationFactory.create(command, a, b)
         try:
             result = calculation.get_result()
+        except ZeroDivisionError:
+            print("Cannot divide by zero.")
+            continue
         except ValueError:
             print("Result is too large to calculate.")
             continue
@@ -72,6 +75,3 @@ def run() -> None:
         _run_loop()
     except (EOFError, KeyboardInterrupt):
         print("\nGoodbye!")
-
-
-    

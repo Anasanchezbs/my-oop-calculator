@@ -171,3 +171,24 @@ def test_distance_command_shows_absolute_difference(monkeypatch, capsys):
     output = run_session(monkeypatch, capsys, answers)
     assert "Result: 7" in output
     assert "1. Distance(3, 10) = 7" in output
+
+
+def test_multiply_and_divide_commands(monkeypatch, capsys):
+    answers = ["multiply", "4", "2.5", "divide", "10", "4", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Result: 10" in output
+    assert "Result: 2.5" in output
+
+
+def test_divide_by_zero_is_reported_and_not_saved(monkeypatch, capsys):
+    answers = ["divide", "1", "0", "history", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Cannot divide by zero" in output
+    assert "1. " not in output
+
+
+def test_unknown_command_is_reported(monkeypatch, capsys):
+    answers = ["banana", "exit"]
+    output = run_session(monkeypatch, capsys, answers)
+    assert "Unknown command" in output
+    assert "Goodbye!" in output
